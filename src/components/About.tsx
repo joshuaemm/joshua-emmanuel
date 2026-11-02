@@ -1,96 +1,78 @@
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import ChessPiece from "./ChessPiece";
+import Timeline from "./Timeline";
+
+const statement = ["Explorer", "by", "nature."];
+const italic = new Set([2]);
+
+const stats = [
+  { big: "6+", small: "years editing" },
+  { big: "18+", small: "years exploring" },
+  { big: "∞", small: "curiosity" },
+];
+
+const words = ["Editing", "Motion", "Photography", "Writing", "Storytelling", "Speed cubing"];
+
+function Word({ w, i, progress }: { w: string; i: number; progress: MotionValue<number> }) {
+  const start = i / statement.length;
+  const opacity = useTransform(progress, [start, start + 1 / statement.length], [0.12, 1]);
+  return (
+    <motion.span style={{ opacity }} className={`mr-[0.22em] inline-block ${italic.has(i) ? "italic" : ""}`}>
+      {w}
+    </motion.span>
+  );
+}
 
 export default function About() {
-  const stats = [
-    { value: "04+", label: "Years editing" },
-    { value: "18", label: "Years of age" },
-    { value: "03", label: "Key projects" },
-    { value: "01", label: "Abandoned novel" },
-  ];
+  const ref = useRef<HTMLParagraphElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 85%", "end 45%"] });
 
   return (
-    <section id="about" className="relative px-6 py-32 md:px-12 md:py-48">
-      <div className="mx-auto grid max-w-7xl gap-16 md:grid-cols-12">
-        {/* Label */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          className="md:col-span-3"
-        >
-          <div className="sticky top-32">
-            <div className="mb-3 text-xs uppercase tracking-[0.3em] text-[#c4f34b]">
-              / 01
+    <section id="about" className="relative overflow-hidden py-28 md:py-40">
+      <ChessPiece piece="bishop" size={96} blur={1.5} rotate={-10} className="right-[6%] top-10 md:right-[12%] md:top-20" />
+      <ChessPiece piece="king-black" size={84} blur={3} rotate={14} drift={110} className="left-[10%] top-[20%] hidden md:block" />
+      <div className="mx-auto max-w-5xl px-4 text-center md:px-10">
+        <p className="mb-8 text-xs uppercase tracking-[0.3em] text-muted">About</p>
+        <p ref={ref} className="font-serif text-[clamp(48px,9vw,128px)] leading-[0.95] text-ink">
+          {statement.map((w, i) => (
+            <Word key={i} w={w} i={i} progress={scrollYProgress} />
+          ))}
+        </p>
+
+        <div className="relative mx-auto mt-20 grid max-w-3xl grid-cols-3 gap-4">
+          {/* an edit timeline running behind the glass stat cards */}
+          <div className="absolute left-1/2 top-1/2 flex w-screen -translate-x-1/2 -translate-y-1/2 justify-center [mask-image:linear-gradient(to_right,transparent,black_18%,black_82%,transparent)]">
+            <Timeline />
+          </div>
+          {stats.map((s, i) => (
+            <motion.div
+              key={s.big}
+              className="glass relative rounded-3xl px-3 py-6"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.9, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="font-serif text-4xl text-ink md:text-5xl">{s.big}</div>
+              <div className="mt-1 text-xs text-muted">{s.small}</div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-24 flex overflow-hidden border-y border-line py-6">
+        <div className="animate-marquee flex shrink-0 whitespace-nowrap">
+          {[0, 1].map((k) => (
+            <div key={k} className="flex shrink-0" aria-hidden={k === 1}>
+              {[...words, ...words].map((w, i) => (
+                <span key={i} className="flex items-center font-serif text-4xl italic text-ink md:text-5xl">
+                  <span className="px-8">{w}</span>
+                  <span className="text-base not-italic text-muted">✦</span>
+                </span>
+              ))}
             </div>
-            <h2 className="font-display text-3xl font-medium text-white">About</h2>
-          </div>
-        </motion.div>
-
-        {/* Content */}
-        <div className="md:col-span-9">
-          <motion.p
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            data-cursor="text"
-            className="font-display text-3xl leading-snug text-white/90 md:text-5xl"
-          >
-            I'm Joshua — a <span className="gradient-text">video editor & creative explorer</span> based
-            in South India. Once I'm in a project, I'm <em className="italic text-white/60">fully in</em> — and I'll start again from scratch without drama.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="mt-12 grid gap-8 text-white/70 md:grid-cols-2"
-          >
-            <p>
-              Four years into video editing (and still hungry to learn), I've worked with sports brands,
-              MUN conferences, college ambassadors, and church communities — all before finishing my
-              second year of university studying business (BBA).
-            </p>
-            <p>
-              I'm actively building my toolkit — in DaVinci Resolve, in motion graphics, in creative writing, in photography,
-              and in whatever else grabs my attention next. I believe in learning by doing, and I'm not afraid to be a beginner in public.
-            </p>
-          </motion.div>
-
-          {/* Pull quote style box */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="mt-12 rounded-2xl border-l-4 border-[#c4f34b] bg-white/[0.02] p-6 md:p-8"
-          >
-            <p className="font-display text-lg italic leading-relaxed text-white/80 md:text-xl">
-              "Even after failing at one thing, I can immediately start working from scratch again. Not to boast — just honest self-testimony."
-            </p>
-          </motion.div>
-
-          {/* Stats */}
-          <div className="mt-20 grid grid-cols-2 gap-8 border-t border-white/10 pt-12 md:grid-cols-4">
-            {stats.map((s, i) => (
-              <motion.div
-                key={s.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-              >
-                <div className="font-display text-5xl font-bold text-white md:text-6xl">
-                  {s.value}
-                </div>
-                <div className="mt-2 text-xs uppercase tracking-wider text-white/50">
-                  {s.label}
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
     </section>

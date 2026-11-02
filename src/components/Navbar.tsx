@@ -1,54 +1,61 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
+import { EMAIL } from "../data";
+
+const links = [
+  { label: "Work", href: "#work" },
+  { label: "About", href: "#about" },
+  { label: "Contact", href: "#contact" },
+];
 
 export default function Navbar() {
-  const links = [
-    { label: "Work", href: "#work" },
-    { label: "About", href: "#about" },
-    { label: "Experience", href: "#experience" },
-    { label: "Contact", href: "#contact" },
-  ];
+  const [hovered, setHovered] = useState<string | null>(null);
 
   return (
-    <motion.nav
+    <motion.header
+      className="fixed inset-x-0 top-0 z-50 bg-gradient-to-b from-paper via-paper/85 to-transparent px-4 pb-6 pt-5 md:px-10 md:pt-7"
       initial={{ y: -40, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-5"
+      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/10 bg-black/40 px-6 py-3 backdrop-blur-xl">
-        <a href="#top" data-cursor="hover" className="flex items-center gap-2">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-            className="h-7 w-7 rounded-md bg-gradient-to-br from-[#c4f34b] to-[#7c5cff]"
-          />
-          <span className="text-sm font-medium tracking-wide text-white">joshua.emmanuel</span>
+      <nav className="mx-auto flex max-w-6xl items-center justify-between">
+        <a href="#" className="text-lg font-semibold tracking-tight text-ink">
+          Joshua<sup className="ml-0.5 text-[10px] font-normal">°</sup>
         </a>
 
-        <div className="hidden items-center gap-1 md:flex">
+        <ul
+          className="glass hidden items-center gap-1 rounded-full p-1 md:flex"
+          onMouseLeave={() => setHovered(null)}
+        >
           {links.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              data-cursor="hover"
-              className="link-underline rounded-full px-4 py-2 text-sm text-white/80 transition-colors hover:text-white"
-            >
-              {l.label}
-            </a>
+            <li key={l.href} className="relative">
+              {hovered === l.href && (
+                <motion.span
+                  layoutId="nav-pill"
+                  className="absolute inset-0 rounded-full bg-ink/[0.06]"
+                  transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                />
+              )}
+              <a
+                href={l.href}
+                onMouseEnter={() => setHovered(l.href)}
+                className="relative block px-5 py-2 text-[13px] text-ink"
+              >
+                {l.label}
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
 
         <a
-          href="#contact"
-          data-cursor="hover"
-          className="group relative overflow-hidden rounded-full bg-white px-5 py-2 text-sm font-medium text-black"
+          href={`mailto:${EMAIL}`}
+          className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2.5 text-[13px] font-medium text-paper"
         >
-          <span className="relative z-10 transition-colors group-hover:text-white">
-            Let's talk →
-          </span>
-          <span className="absolute inset-0 -translate-x-full bg-[#c4f34b] transition-transform duration-500 ease-out group-hover:translate-x-0" />
+          Get in touch
+          <ArrowUpRight size={14} className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
         </a>
-      </div>
-    </motion.nav>
+      </nav>
+    </motion.header>
   );
 }

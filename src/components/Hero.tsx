@@ -1,153 +1,228 @@
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowDown } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
+import Orbit from "./Orbit";
+import HeadTimeline from "./HeadTimeline";
+import SelectReveal from "./SelectReveal";
+import { projects } from "../data";
 
-export default function Hero() {
-  const firstName = ["J", "O", "S", "H", "U", "A"];
-  const lastName = ["E", "M", "M", "A", "N", "U", "E", "L"];
+const ease = [0.22, 1, 0.36, 1] as const;
+// height / width of media/portrait.webp
+const PORTRAIT_RATIO = 1159 / 1100;
+
+function Badge() {
+  const text = "VIDEO EDITOR • CREATIVE EXPLORER • ";
+  return (
+    <div className="relative h-24 w-24">
+      <svg viewBox="0 0 100 100" className="animate-spin-slow absolute inset-0 h-full w-full">
+        <defs>
+          <path id="badge-circle" d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0" />
+        </defs>
+        <text className="fill-ink" style={{ fontSize: 8.6, letterSpacing: 2.4 }}>
+          <textPath href="#badge-circle">{text}</textPath>
+        </text>
+      </svg>
+      <span className="absolute inset-0 grid place-items-center text-xl">✦</span>
+    </div>
+  );
+}
+
+function Float({
+  children,
+  className,
+  delay,
+  r = 0,
+}: {
+  children: React.ReactNode;
+  className: string;
+  delay: number;
+  r?: number;
+}) {
+  return (
+    <motion.div
+      className={`absolute z-20 hidden lg:block ${className}`}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1, delay, ease }}
+    >
+      <div className="animate-drift" style={{ ["--r" as string]: `${r}deg`, animationDelay: `${delay}s` }}>
+        {children}
+      </div>
+    </motion.div>
+  );
+}
+
+export default function Hero({ onPlay }: { onPlay: (src: string) => void }) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [stageW, setStageW] = useState(600);
+  const mouse = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setStageW(e.contentRect.width));
+    ro.observe(el);
+    const onMove = (e: PointerEvent) => {
+      mouse.current = {
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: (e.clientY / window.innerHeight) * 2 - 1,
+      };
+    };
+    window.addEventListener("pointermove", onMove);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("pointermove", onMove);
+    };
+  }, []);
 
   return (
-    <section
-      id="top"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 pt-24 md:px-12"
-    >
-      {/* Background blobs */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="animate-blob absolute -top-40 -left-40 h-[520px] w-[520px] rounded-full bg-[#7c5cff] opacity-30 blur-[120px]" />
-        <div
-          className="animate-blob absolute top-1/3 -right-40 h-[480px] w-[480px] rounded-full bg-[#c4f34b] opacity-20 blur-[120px]"
-          style={{ animationDelay: "4s" }}
+    <section className="relative flex min-h-[100svh] flex-col overflow-hidden pt-28">
+      {/* thin connector curves, like the reference */}
+      <svg
+        className="pointer-events-none absolute inset-x-0 top-0 hidden h-[100svh] w-full lg:block"
+        viewBox="0 0 1440 900"
+        preserveAspectRatio="none"
+        fill="none"
+      >
+        <motion.path
+          d="M190 470 C 210 600, 380 620, 560 600"
+          stroke="#cfccc4"
+          strokeWidth="1"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 1.8, delay: 1.4, ease }}
         />
-        <div
-          className="animate-blob absolute bottom-0 left-1/4 h-[420px] w-[420px] rounded-full bg-[#ff5cc8] opacity-15 blur-[120px]"
-          style={{ animationDelay: "8s" }}
+        <motion.path
+          d="M1250 520 C 1240 640, 1080 650, 900 620"
+          stroke="#cfccc4"
+          strokeWidth="1"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 1.8, delay: 1.6, ease }}
         />
-      </div>
+      </svg>
 
-      {/* Grid */}
-      <div className="bg-grid pointer-events-none absolute inset-0 -z-10 opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" />
-
-      <div className="relative mx-auto w-full max-w-7xl">
-        {/* Status badge & Meta pills */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-10 flex flex-wrap items-center gap-3"
-        >
-          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs text-white/60">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#c4f34b] opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#c4f34b]" />
-            </span>
-            <span className="text-[10px] uppercase tracking-wider text-white/70">
-              Open to freelance
-            </span>
-          </div>
-          <span className="rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[10px] uppercase tracking-wider text-white/60">
-            Business Student, 2nd Year
-          </span>
-          <span className="rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[10px] uppercase tracking-wider text-white/60">
-            South India
-          </span>
-          <span className="rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[10px] uppercase tracking-wider text-white/60">
-            18 Years Old
-          </span>
-        </motion.div>
-
-        {/* Massive name */}
-        <div className="overflow-hidden">
-          <h1
-            data-cursor="text"
-            className="font-display text-[clamp(4rem,15vw,14rem)] font-bold leading-[0.85] tracking-tighter text-white"
-          >
-            <div className="flex flex-wrap">
-              {firstName.map((ch, i) => (
-                <motion.span
-                  key={`f-${i}`}
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  transition={{
-                    duration: 1,
-                    delay: 0.1 + i * 0.06,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                  className="inline-block"
-                >
-                  {ch}
-                </motion.span>
-              ))}
-            </div>
-            <div className="flex flex-wrap gradient-text">
-              {lastName.map((ch, i) => (
-                <motion.span
-                  key={`l-${i}`}
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  transition={{
-                    duration: 1,
-                    delay: 0.35 + i * 0.06,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                  className="inline-block"
-                >
-                  {ch}
-                </motion.span>
-              ))}
-            </div>
+      <div className="relative z-40 px-4 text-center">
+        <SelectReveal delay={0.4} className="inline-block">
+          <h1 className="font-serif text-[clamp(60px,9.4vw,144px)] leading-[0.86] tracking-[-0.02em] text-ink">
+            <span className="block">Exploring</span>
+            <span className="block italic">the World.</span>
           </h1>
-        </div>
+        </SelectReveal>
 
-        {/* Description row */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
+        <motion.p
+          className="mx-auto mt-4 max-w-sm text-[15px] leading-relaxed text-muted md:text-base"
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.2 }}
-          className="mt-12 grid gap-8 md:grid-cols-12"
+          transition={{ duration: 0.9, delay: 2.7, ease }}
         >
-          <div className="md:col-span-5 md:col-start-7">
-            <h2 className="text-xl font-semibold mb-4 text-[#c4f34b]">
-              Video Editor & Creative Explorer
-            </h2>
-            <p className="text-lg leading-relaxed text-white/70 md:text-xl">
-              I don't just edit videos — I show up fully, every time, from{" "}
-              <span className="text-white font-medium">first frame to final render</span>. Building stories with pacing, rhythm, and grit.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <a
-                href="#work"
-                data-cursor="hover"
-                className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition-transform hover:scale-[1.02]"
-              >
-                View selected work
-                <span className="transition-transform group-hover:translate-x-1">→</span>
-              </a>
-              <a
-                href="#contact"
-                data-cursor="hover"
-                className="link-underline text-sm text-white/80"
-              >
-                Or get in touch
-              </a>
-            </div>
-          </div>
+          Video editor. Creative explorer.
+        </motion.p>
+
+        <motion.div
+          className="mt-6 flex items-center justify-center gap-3"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 2.85, ease }}
+        >
+          <a
+            href="#work"
+            className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-transform hover:scale-[1.03]"
+          >
+            See the work
+            <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
+          </a>
+          <button
+            onClick={() => onPlay(projects[0].video)}
+            className="inline-flex items-center gap-2 rounded-full border border-line bg-white/70 px-5 py-3 text-sm font-medium text-ink transition-transform hover:scale-[1.03]"
+          >
+            <span className="grid h-5 w-5 place-items-center rounded-full bg-ink text-paper">
+              <Play size={10} fill="currentColor" />
+            </span>
+            Watch reel
+          </button>
         </motion.div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Portrait + orbiting cards. The hero grows to the portrait's full height
+          so the shoulders show and fade out, on desktop as on mobile. */}
+      <div className="relative -mt-2" style={{ height: stageW * PORTRAIT_RATIO }}>
+        <div
+          ref={stageRef}
+          className="absolute left-1/2 top-0 w-[min(600px,96vw,max(400px,100svh_-_24rem))] -translate-x-1/2"
+        >
+          {/* thin edit timeline flowing behind the head */}
+          <HeadTimeline className="absolute left-1/2 top-[14%] z-[4] w-screen -translate-x-1/2 [mask-image:linear-gradient(to_right,transparent,black_20%,black_80%,transparent)] [mask-repeat:no-repeat]" />
+          <motion.img
+            src="/media/portrait.webp"
+            alt="Joshua Emmanuel, eyes closed, looking up"
+            className="relative z-10 block w-full select-none [mask-image:linear-gradient(to_bottom,black_80%,transparent)]"
+            draggable={false}
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.4, delay: 0.3, ease }}
+          />
+          <Orbit width={stageW} mouse={mouse} />
+        </div>
+      </div>
+
+      {/* Corner details */}
+      <Float className="left-[6%] top-[40svh]" delay={1.1} r={-4}>
+        <div className="glass w-52 rounded-3xl p-5">
+          <span className="text-lg">✂︎</span>
+          <p className="mt-3 text-[17px] font-medium leading-snug text-ink">Turning footage into feeling.</p>
+          <p className="mt-2 text-xs text-muted">Edit, pace, repeat.</p>
+        </div>
+      </Float>
+
+      <Float className="right-[6%] top-[46svh]" delay={1.3} r={5}>
+        <div className="glass w-52 rounded-3xl p-5">
+          <div className="flex -space-x-2">
+            {projects.slice(0, 3).map((p) => (
+              <img key={p.id} src={p.poster} alt="" className="h-8 w-8 rounded-full border-2 border-white object-cover grayscale" />
+            ))}
+            <span className="grid h-8 w-8 place-items-center rounded-full border-2 border-white bg-white text-sm">+</span>
+          </div>
+          <p className="mt-3 text-[17px] font-medium leading-snug text-ink">Open to freelance.</p>
+          <p className="mt-2 text-xs text-muted">South India. Anywhere.</p>
+        </div>
+      </Float>
+
       <motion.div
+        className="absolute right-[7%] top-32 z-20 hidden lg:block"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1, delay: 1.2, ease }}
+      >
+        <Badge />
+      </motion.div>
+
+      <motion.div
+        className="absolute left-[6%] top-[calc(100svh-7rem)] z-40 hidden lg:block"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        transition={{ duration: 1, delay: 1.5 }}
       >
-        <span className="text-[10px] uppercase tracking-[0.3em] text-white/40">Scroll</span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.8, repeat: Infinity }}
-          className="text-white/40"
-        >
-          <ArrowDown size={16} />
-        </motion.div>
+        <div className="mb-3 h-px w-8 bg-ink/30" />
+        <p className="text-sm leading-snug text-muted">
+          6+ years
+          <br />
+          cutting stories.
+        </p>
+      </motion.div>
+
+      <motion.div
+        className="absolute right-[6%] top-[calc(100svh-7rem)] z-40 hidden text-right lg:block"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 1.6 }}
+      >
+        <span className="text-lg">✦</span>
+        <p className="mt-2 text-sm leading-snug text-muted">
+          Less noise.
+          <br />
+          More story.
+        </p>
       </motion.div>
     </section>
   );
