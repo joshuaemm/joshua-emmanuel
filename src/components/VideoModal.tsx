@@ -25,14 +25,18 @@ export default function VideoModal({ src, onClose }: { src: string | null; onClo
           onClick={onClose}
         >
           <motion.div
-            className="relative w-full max-w-5xl overflow-hidden rounded-3xl bg-ink shadow-2xl"
+            className="relative w-auto max-w-5xl overflow-hidden rounded-3xl bg-ink shadow-2xl"
             initial={{ scale: 0.92, y: 30 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.95, y: 20 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             onClick={(e) => e.stopPropagation()}
           >
-            <video src={src} className="aspect-video w-full" controls autoPlay playsInline />
+            {/\.(webp|jpe?g|png)$/i.test(src) ? (
+              <img src={src} alt="" className="block max-h-[85vh] max-w-[92vw] object-contain" />
+            ) : (
+              <video src={src} className="block max-h-[85vh] w-[min(64rem,92vw)]" controls autoPlay playsInline />
+            )}
           </motion.div>
           <button
             onClick={onClose}

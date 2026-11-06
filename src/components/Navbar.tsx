@@ -5,6 +5,7 @@ import { EMAIL } from "../data";
 
 const links = [
   { label: "Work", href: "#work" },
+  { label: "Archive", href: "#gallery" },
   { label: "About", href: "#about" },
   { label: "Contact", href: "#contact" },
 ];

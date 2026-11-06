@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import Work from "./components/Work";
+import Gallery from "./components/Gallery";
 import About from "./components/About";
 import Contact from "./components/Contact";
 import VideoModal from "./components/VideoModal";
@@ -16,6 +17,7 @@ export default function App() {
       <main>
         <Hero onPlay={setVideo} />
         <Work onPlay={setVideo} />
+        <Gallery onOpen={setVideo} />
         <About />
         <Contact />
       </main>

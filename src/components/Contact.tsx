@@ -4,6 +4,7 @@ import { EMAIL } from "../data";
 import SelectReveal from "./SelectReveal";
 import ChessPiece from "./ChessPiece";
 import Timeline from "./Timeline";
+import StickerBand from "./StickerBand";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -37,7 +38,11 @@ export default function Contact() {
         </div>
       </div>
 
-      <div className="mt-24 flex justify-center opacity-80 [mask-image:linear-gradient(to_right,transparent,black_20%,black_80%,transparent)]">
+      <div className="-mx-4 mt-20 md:-mx-10">
+        <StickerBand />
+      </div>
+
+      <div className="mt-16 flex justify-center opacity-80 [mask-image:linear-gradient(to_right,transparent,black_20%,black_80%,transparent)]">
         <Timeline compact />
       </div>
 
